@@ -6,6 +6,10 @@
 class VulkanGameEngine
 {
 	public:
+		// Example unit test method
+		bool lessThanTen(int lessThanTen);
+
+	public:
 		VulkanGameEngine();
 
 		void init();

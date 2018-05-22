@@ -2,4 +2,4 @@ build/
 bin/
 thirdparty/glfw/
 thirdparty/glm/
-
+thirdparty/googletest/

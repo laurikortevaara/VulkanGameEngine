@@ -201,3 +201,10 @@ void VulkanGameEngine::cleanup()
 	glfwDestroyWindow(window);
 	glfwTerminate();
 }
+
+
+/// Simple google unit test method 
+bool VulkanGameEngine::lessThanTen(int lessThanTen)
+{
+	return lessThanTen < 10;
+}
