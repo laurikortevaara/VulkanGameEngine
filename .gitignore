@@ -1,3 +1,5 @@
-
+build/
+bin/
 thirdparty/glfw/
 thirdparty/glm/
+
