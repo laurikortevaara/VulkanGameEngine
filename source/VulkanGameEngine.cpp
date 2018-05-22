@@ -164,6 +164,8 @@ void VulkanGameEngine::initVulkan()
 /// Creates the VKSurfaceKHR (KHR=Khronos)
 void VulkanGameEngine::createSurface()
 {
+	/* Example surface creation on Windows
+	*
 	VkWin32SurfaceCreateInfoKHR createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 	createInfo.hwnd = glfwGetWin32Window(window);
@@ -174,6 +176,13 @@ void VulkanGameEngine::createSurface()
 	if (!CreateWin32SurfaceKHR || CreateWin32SurfaceKHR(instance, &createInfo, nullptr, &surface) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create win32 window surface!");
+	}
+	*/
+
+	// Instead of using a custom surface creation function, let's use the
+	// glfw's crossplatform approach
+	if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create window surface!");
 	}
 }
 
@@ -264,6 +273,7 @@ void VulkanGameEngine::mainLoop()
 void VulkanGameEngine::cleanup()
 {
 	vkDestroyDevice(logicalDevice, nullptr);
+	vkDestroySurfaceKHR(instance, surface, nullptr);
 	vkDestroyInstance(instance, nullptr);
 	glfwDestroyWindow(window);
 	glfwTerminate();
