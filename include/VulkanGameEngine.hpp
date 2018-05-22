@@ -61,9 +61,12 @@ protected:
 	
 	///
 	void pickPhysicalDevice();
-	
+
 	///
 	void createLogicalDevice();
+
+	/// Create Surface
+	void createSurface();
 
 	bool isSuitableDevice(VkPhysicalDevice device);
 
@@ -77,4 +80,5 @@ private:
 	VkPhysicalDevice	physicalDevice;
 	VkDevice			logicalDevice;
 	VkQueue				graphicsQueue;
+	VkSurfaceKHR		surface;
 };

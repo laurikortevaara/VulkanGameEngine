@@ -1,9 +1,16 @@
 #include "VulkanGameEngine.hpp"
 
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+
 #include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan_win32.h>
 
 #include <iostream>
 #include <vector>
+
+
+#include <Windows.h>
 
 /// VulkanGameEngine Constructor
 VulkanGameEngine::VulkanGameEngine()
@@ -149,6 +156,25 @@ void VulkanGameEngine::initVulkan()
 {
 	createVulkanInstance();
 	pickPhysicalDevice();
+	createLogicalDevice();
+	createSurface();
+}
+
+/// VulkanGameEngine createSurface
+/// Creates the VKSurfaceKHR (KHR=Khronos)
+void VulkanGameEngine::createSurface()
+{
+	VkWin32SurfaceCreateInfoKHR createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+	createInfo.hwnd = glfwGetWin32Window(window);
+	createInfo.hinstance = GetModuleHandle(nullptr);
+
+	auto CreateWin32SurfaceKHR = (PFN_vkCreateWin32SurfaceKHR)vkGetInstanceProcAddr(instance, "vkCreateWin32SurfaceKHR");
+
+	if (!CreateWin32SurfaceKHR || CreateWin32SurfaceKHR(instance, &createInfo, nullptr, &surface) != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to create win32 window surface!");
+	}
 }
 
 /// Check for Validation layer support
