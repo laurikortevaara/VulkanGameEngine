@@ -14,6 +14,9 @@ VulkanGameEngine::VulkanGameEngine()
 		throw(std::runtime_error("Could not initialize GLFW!"));
 }
 
+/// VulkanGameEngine::findQueueFamilies
+/// \brief It'll return you the queue families
+/// Detailed documentation for the function goes here...
 QueueFamilyIndices VulkanGameEngine::findQueueFamilies(VkPhysicalDevice device)
 {
 	QueueFamilyIndices indices;
@@ -99,6 +102,9 @@ void VulkanGameEngine::pickPhysicalDevice()
 	}
 }
 
+/// VulkanGameEngine::createLogicalDevice()
+/// Will create the logical device for the Engine
+///
 void VulkanGameEngine::createLogicalDevice()
 {
 
@@ -112,6 +118,8 @@ void VulkanGameEngine::initVulkan()
 	pickPhysicalDevice();
 }
 
+/// Check for Validation layer support
+/// [NOT IMPLEMENTED]
 bool VulkanGameEngine::checkValidationLayerSupport() {
 	uint32_t layerCount;
 	vkEnumerateInstanceLayerProperties(&layerCount, nullptr);

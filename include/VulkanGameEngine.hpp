@@ -1,8 +1,25 @@
+/*! \mainpage My Personal Index Page
+*
+* \section intro_sec Introduction
+*
+* This is the introduction.
+*
+* \section install_sec Installation
+*
+* \subsection step1 Step 1: Opening the box
+*
+* etc...
+*/
+
 #include "QueueFamilyIndices.hpp"
 
 #define GLFW_INCLUDE_VULKAN
 #include "GLFW/glfw3.h"
 
+/// \brief The Vulkan Game Engine
+///
+/// This is the main API for Vulkan Game Engine
+/// The implementation is in c++ language
 class VulkanGameEngine
 {
 	public:
@@ -17,14 +34,26 @@ class VulkanGameEngine
 		void cleanup();
 protected:
 
+	/// initWindow will create a new GLFW window for the engine
 	void initWindow();
+	
+	/// initVulkan will initialize the Vulkan API
 	void initVulkan();
 
+	/// mainLoop will be called for each rendering frame by GLFW
 	void mainLoop();
 
+	
+	/// checkValidationLayerSupport will return the shiit
 	bool checkValidationLayerSupport();
+	
+	///
 	void createVulkanInstance();
+	
+	///
 	void pickPhysicalDevice();
+	
+	///
 	void createLogicalDevice();
 
 	bool isSuitableDevice(VkPhysicalDevice device);

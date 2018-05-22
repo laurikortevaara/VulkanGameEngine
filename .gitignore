@@ -3,3 +3,6 @@ bin/
 thirdparty/glfw/
 thirdparty/glm/
 thirdparty/googletest/
+/doxyfile
+/doxyfile.in
+source/doc_doxygen
