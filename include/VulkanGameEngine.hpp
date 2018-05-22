@@ -76,4 +76,5 @@ private:
 	VkInstance			instance;
 	VkPhysicalDevice	physicalDevice;
 	VkDevice			logicalDevice;
+	VkQueue				graphicsQueue;
 };

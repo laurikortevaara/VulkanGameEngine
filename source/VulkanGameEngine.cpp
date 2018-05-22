@@ -107,7 +107,40 @@ void VulkanGameEngine::pickPhysicalDevice()
 ///
 void VulkanGameEngine::createLogicalDevice()
 {
+	QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
+	VkDeviceQueueCreateInfo queueCreateInfo = {};
+	queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+	queueCreateInfo.queueFamilyIndex = indices.graphicsFamily;
+	queueCreateInfo.queueCount = 1;
+
+	// Priority between 0.0 - 1.0 [REQUIRED]
+	float queuePriority = 1.0f;
+	queueCreateInfo.pQueuePriorities = &queuePriority;
+
+	// No need to define any features at this point
+	VkPhysicalDeviceFeatures deviceFeatures = {};
+
+	VkDeviceCreateInfo createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+	createInfo.pQueueCreateInfos = &queueCreateInfo;
+	createInfo.queueCreateInfoCount = 1;
+
+	createInfo.pEnabledFeatures = &deviceFeatures;
+
+	// No extensions enabled at this point
+	createInfo.enabledExtensionCount = 0;
+
+	// No validation layers enabled at this point
+	createInfo.enabledLayerCount = 0;
+
+	// Now we're ready to create the logical device
+	if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &logicalDevice) != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to create a Vulkan logical device!");
+	}
+
+	vkGetDeviceQueue(logicalDevice, indices.graphicsFamily, 0, &graphicsQueue);
 }
 
 /// VulkanGameEngine initVulkan
@@ -204,7 +237,7 @@ void VulkanGameEngine::mainLoop()
 /// VulkanGameEngine cleaning up code
 void VulkanGameEngine::cleanup()
 {
-
+	vkDestroyDevice(logicalDevice, nullptr);
 	vkDestroyInstance(instance, nullptr);
 	glfwDestroyWindow(window);
 	glfwTerminate();
