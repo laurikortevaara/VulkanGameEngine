@@ -2,11 +2,13 @@ include_directories(${VulkanGameEngine_SOURCE_DIR}/include)
 add_library(VulkanGameEngine VulkanGameEngine.cpp)
 
 #Add GLM And GLFW to include directories
-include_directories(${VulkanGameEngine_SOURCE_DIR}/thirdparty/glfw/include)
-include_directories(${VulkanGameEngine_SOURCE_DIR}/thirdparty/GLM/include)
+#include_directories(${VulkanGameEngine_SOURCE_DIR}/thirdparty/glfw/include)
+#include_directories(${VulkanGameEngine_SOURCE_DIR}/thirdparty/GLM/include)
+include_directories(${CMAKE_BINARY_DIR}/glm-src)
+include_directories(${CMAKE_BINARY_DIR}/glfw-src/include)
 
 #Link with GLFW
-target_link_libraries(VulkanGameEngine ${VulkanGameEngine_SOURCE_DIR}/thirdparty/glfw/build/src/Debug/glfw3.lib)
+target_link_libraries(VulkanGameEngine ${VulkanGameEngine_SOURCE_DIR}/bin/Debug/glfw3.lib)
 
 # Add the Vulkan SDK
 find_package(VULKAN REQUIRED)

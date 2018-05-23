@@ -1,7 +1,33 @@
 ################################
 # Testing
 ################################
-if (test)
+if (VULKAN_GAME_ENGINE_UNIT_TESTS)
+
+# Download and unpack googletest at configure time
+configure_file(${CMAKE_SOURCE_DIR}/thirdparty/googletest/CMakeLists.txt.in ${CMAKE_BINARY_DIR}/googletest-download/CMakeLists.txt)
+execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+  RESULT_VARIABLE result
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/googletest-download )
+if(result)
+  message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+endif()
+execute_process(COMMAND ${CMAKE_COMMAND} --build .
+  RESULT_VARIABLE result
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/googletest-download )
+if(result)
+  message(FATAL_ERROR "Build step for googletest failed: ${result}")
+endif()
+
+# Prevent overriding the parent project's compiler/linker
+# settings on Windows
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
+# Add googletest directly to our build. This defines
+# the gtest and gtest_main targets.
+add_subdirectory(${CMAKE_BINARY_DIR}/googletest-src
+                 ${CMAKE_BINARY_DIR}/googletest-build
+                 EXCLUDE_FROM_ALL)
+
   if (APPLE)
     add_definitions(-DGTEST_USE_OWN_TR1_TUPLE)
     add_definitions(-D__GLIBCXX__)
@@ -32,8 +58,8 @@ if (test)
   add_test(that-other-test-I-made runUnitTests)
 
   #Add GLM And GLFW to include directories
-	include_directories(${VulkanGameEngine_SOURCE_DIR}/thirdparty/glfw/include)
-	include_directories(${VulkanGameEngine_SOURCE_DIR}/thirdparty/GLM/include)
+	include_directories(${CMAKE_BINARY_DIR}/glm-src)
+	include_directories(${CMAKE_BINARY_DIR}/glfw-src/include)
 
 	#Link with GLFW
 	#target_link_libraries(runUnitTests ${VulkanGameEngine_SOURCE_DIR}/thirdparty/glfw/build/src/Debug/glfw3.lib)

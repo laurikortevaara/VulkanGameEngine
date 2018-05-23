@@ -8,8 +8,7 @@
 
 #include <iostream>
 #include <vector>
-
-
+#include <set>
 #include <Windows.h>
 
 /// VulkanGameEngine Constructor
@@ -38,7 +37,17 @@ QueueFamilyIndices VulkanGameEngine::findQueueFamilies(VkPhysicalDevice device)
 	for (const auto& queueFamily : queueFamilies)
 	{
 		if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+		{
 			indices.graphicsFamily = i;
+		}
+
+		VkBool32 presentSupport = false;
+		vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
+
+		if (queueFamily.queueCount > 0 && presentSupport)
+		{
+			indices.presentFamily = i;
+		}
 
 		if (indices.isComplete())
 			break;
@@ -47,6 +56,31 @@ QueueFamilyIndices VulkanGameEngine::findQueueFamilies(VkPhysicalDevice device)
 	}
 
 	return indices;
+}
+
+/// Checks whether required device extensions are supported
+bool VulkanGameEngine::checkDeviceExtensionSupport(VkPhysicalDevice device)
+{
+	// Query extension count
+	uint32_t extensionCount = 0;
+	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+	// Query extensions
+	std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+	const std::vector<const char*> deviceExtensions = {
+		VK_KHR_SWAPCHAIN_EXTENSION_NAME
+	};
+
+	std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+
+	for (const auto& extension : availableExtensions)
+	{
+		requiredExtensions.erase(extension.extensionName);
+	}
+
+	return requiredExtensions.empty();
 }
 
 /// Validates a Vulkan physical Devices
@@ -60,7 +94,9 @@ bool VulkanGameEngine::isSuitableDevice(VkPhysicalDevice device)
 
 	QueueFamilyIndices indices = findQueueFamilies(device);
 
-	if (indices.isComplete())
+	bool extensionsSupported = checkDeviceExtensionSupport(device);
+
+	if (indices.isComplete() && extensionsSupported)
 		return true;
 
 	// Check if device has a GPU And has Geometry Shaders
@@ -125,13 +161,29 @@ void VulkanGameEngine::createLogicalDevice()
 	float queuePriority = 1.0f;
 	queueCreateInfo.pQueuePriorities = &queuePriority;
 
+	// Create Queue Create Infos
+	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+	std::set<int> uniqueQueueFamilies = { indices.graphicsFamily, indices.presentFamily };
+
+	//float queuePriority = 1.0f;
+	for (int queueFamily : uniqueQueueFamilies)
+	{
+		VkDeviceQueueCreateInfo queueCreateInfo = {};
+		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		queueCreateInfo.queueFamilyIndex = queueFamily;
+		queueCreateInfo.queueCount = 1;
+		queueCreateInfo.pQueuePriorities = &queuePriority;
+		queueCreateInfos.push_back(queueCreateInfo);
+	}
+
 	// No need to define any features at this point
 	VkPhysicalDeviceFeatures deviceFeatures = {};
 
 	VkDeviceCreateInfo createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-	createInfo.pQueueCreateInfos = &queueCreateInfo;
-	createInfo.queueCreateInfoCount = 1;
+	createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+	createInfo.pQueueCreateInfos = queueCreateInfos.data();
+	
 
 	createInfo.pEnabledFeatures = &deviceFeatures;
 
@@ -147,7 +199,7 @@ void VulkanGameEngine::createLogicalDevice()
 		throw std::runtime_error("Failed to create a Vulkan logical device!");
 	}
 
-	vkGetDeviceQueue(logicalDevice, indices.graphicsFamily, 0, &graphicsQueue);
+	vkGetDeviceQueue(logicalDevice, indices.presentFamily, 0, &presentQueue);
 }
 
 /// VulkanGameEngine initVulkan
@@ -155,9 +207,10 @@ void VulkanGameEngine::createLogicalDevice()
 void VulkanGameEngine::initVulkan()
 {
 	createVulkanInstance();
+	createSurface();
 	pickPhysicalDevice();
 	createLogicalDevice();
-	createSurface();
+	
 }
 
 /// VulkanGameEngine createSurface

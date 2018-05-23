@@ -23,7 +23,7 @@
 #include "QueueFamilyIndices.hpp"
 
 #define GLFW_INCLUDE_VULKAN
-#include "GLFW/glfw3.h"
+#include <GLFW/glfw3.h>
 
 /// \brief The Vulkan Game Engine
 ///
@@ -51,23 +51,26 @@ protected:
 
 	/// mainLoop will be called for each rendering frame by GLFW
 	void mainLoop();
-
 	
 	/// checkValidationLayerSupport will return the shiit
 	bool checkValidationLayerSupport();
 	
-	///
+	/// Creates the Vulkan API instance
 	void createVulkanInstance();
 	
-	///
+	/// Creates physical Vulkan Device referring to Grpahics card
 	void pickPhysicalDevice();
 
-	///
+	/// Creates logical Vulkan Device 
 	void createLogicalDevice();
 
 	/// Create Surface
 	void createSurface();
 
+	/// Checks for supported extensions
+	bool checkDeviceExtensionSupport(VkPhysicalDevice device);
+
+	/// Checks whether device is suitable for rendering
 	bool isSuitableDevice(VkPhysicalDevice device);
 
 	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
@@ -81,4 +84,5 @@ private:
 	VkDevice			logicalDevice;
 	VkQueue				graphicsQueue;
 	VkSurfaceKHR		surface;
+	VkQueue				presentQueue;
 };
