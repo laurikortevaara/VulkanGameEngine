@@ -90,8 +90,11 @@ namespace vge
 		/// Chooses the swap extent
 		VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& surfaceCapabilities);
 
-		/// Creates the Swap Chain
+		/// Creates the swap chain
 		void createSwapChain();
+
+		/// Creates the swap chain image views
+		void createSwapChainImageViews();
 
 		QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 	private:
@@ -104,16 +107,27 @@ namespace vge
 
 		GLFWwindow*			window;
 		VkInstance			instance;
+		
+		/// The devices (physical & logical)
 		VkPhysicalDevice	physicalDevice;
 		VkDevice			logicalDevice;
+
+		/// The queues (graphics & present)
 		VkQueue				graphicsQueue;
-		VkSurfaceKHR		surface;
 		VkQueue				presentQueue;
 
+		/// The surface
+		VkSurfaceKHR		surface;
+
+		/// The swap chain
 		VkSwapchainKHR		 swapChain;
 		std::vector<VkImage> swapChainImages;
 		VkFormat			 swapChainImageFormat;
 		VkExtent2D			 swapChainExtent;
+
+		/// The Image views
+		std::vector<VkImageView> swapChainImageViews;
+
 	};
 
 } /// ~ namespace vge
