@@ -7,7 +7,7 @@
 #
 TEST(VulkanGameEngine_Tests, lessThanTenTest)
 {
-	VulkanGameEngine engine;
+	vge::VulkanGameEngine engine;
     EXPECT_EQ(true, engine.lessThanTen(9));	
 	EXPECT_EQ(false, engine.lessThanTen(10));
 	EXPECT_EQ(false, engine.lessThanTen(11));

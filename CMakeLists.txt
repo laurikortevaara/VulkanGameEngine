@@ -12,6 +12,9 @@ option(BUILD_DOC "Build documentation" ON)
 message(STATUS "Setting MSVC flags")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHc /std:c++latest")
 
+#If using MSVC undef the min, max functions which collide with the STL functions
+add_definitions(-DNOMINMAX)
+
 #Set the binary directories
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")

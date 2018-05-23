@@ -1,14 +1,22 @@
-/// QueueFamilyIndices
-struct QueueFamilyIndices {
+#ifndef VGE_QUEUE_FAMILY_INDICES
+#define VGE_QUEUE_FAMILY_INDICES
 
-	/// Initial number of graphics families is -1
-	int graphicsFamily = -1;
+namespace vge
+{
+	/// QueueFamilyIndices
+	struct QueueFamilyIndices {
 
-	/// Present family
-	int presentFamily = -1;
+		/// Initial number of graphics families is -1
+		int graphicsFamily = -1;
 
-	/// isComplete returns true is there are one or more graphicsFamilies
-	bool isComplete() {
-		return graphicsFamily >= 0 && presentFamily >= 0;
-	}
-};
+		/// Present family
+		int presentFamily = -1;
+
+		/// isComplete returns true is there are one or more graphicsFamilies
+		bool isComplete() {
+			return graphicsFamily >= 0 && presentFamily >= 0;
+		}
+	};
+} // ~namespace vge
+
+#endif // ~VGE_QUEUE_FAMILY_INDICES
