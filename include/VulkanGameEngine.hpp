@@ -109,7 +109,11 @@ namespace vge
 		VkQueue				graphicsQueue;
 		VkSurfaceKHR		surface;
 		VkQueue				presentQueue;
-		VkSwapchainKHR		swapChain;
+
+		VkSwapchainKHR		 swapChain;
+		std::vector<VkImage> swapChainImages;
+		VkFormat			 swapChainImageFormat;
+		VkExtent2D			 swapChainExtent;
 	};
 
 } /// ~ namespace vge

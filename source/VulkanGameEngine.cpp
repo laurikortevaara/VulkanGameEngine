@@ -266,6 +266,16 @@ void VulkanGameEngine::createSwapChain()
 	{
 		throw std::runtime_error("Failed to create swap chain!");
 	}
+
+	// Get swap chain images
+	/*uint32_t*/ imageCount = 0;
+	vkGetSwapchainImagesKHR(logicalDevice, swapChain, &imageCount, nullptr);
+
+	swapChainImages.resize(imageCount);
+	vkGetSwapchainImagesKHR(logicalDevice, swapChain, &imageCount, swapChainImages.data());
+
+	swapChainImageFormat = surfaceFormat.format;
+	swapChainExtent = extent;
 }
 
 /// VulkanGameEngine initWindow
