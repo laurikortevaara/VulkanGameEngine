@@ -872,6 +872,8 @@ namespace vge
 	} 
 
 	/// VulkanGameEngine create command buffers
+	/// No need to destroy created command buffers in the cleanup, 
+	/// as command buffes will be deleted along the associated command pool.
 	void VulkanGameEngine::createCommandBuffers()
 	{
 		commandBuffers.resize(swapChainFramebuffers.size());
@@ -886,6 +888,37 @@ namespace vge
 		{
 			throw std::runtime_error("Failed to allocate command buffers!");
 		}
+
+		// Start recording command buffer
+		for (size_t i = 0; i < commandBuffers.size(); ++i)
+		{
+			VkCommandBufferBeginInfo beginInfo = {};
+			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+			beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+			beginInfo.pInheritanceInfo = nullptr; // Optional
+
+			if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS)
+			{
+				throw std::runtime_error("Failed to begin command buffer recording!");
+			}
+
+			// Start a render pass
+			VkRenderPassBeginInfo renderPassInfo = {};
+			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+			renderPassInfo.renderPass = renderPass;
+			renderPassInfo.framebuffer = swapChainFramebuffers[i];
+			renderPassInfo.renderArea.offset = { 0,0 };
+			renderPassInfo.renderArea.extent = swapChainExtent;
+
+			// Set the clear color
+			VkClearValue clearColor = { 0.0f,0.0f,0.0f,1.0f }; // BGRA
+			renderPassInfo.clearValueCount = 1;
+			renderPassInfo.pClearValues = &clearColor;
+
+			vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		}
+
+		
 	}
 
 	/// VulkanGameEngine initialization
