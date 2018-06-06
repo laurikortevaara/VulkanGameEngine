@@ -450,6 +450,7 @@ namespace vge
 		createRenderPass();
 		createGraphicsPipeline();
 		createCommandPool();
+		createCommandBuffers();
 	}
 
 	/// Creates the swap chain image views
@@ -868,8 +869,24 @@ namespace vge
 		{
 			throw std::runtime_error("Failed to create command pool!");
 		}
-
 	} 
+
+	/// VulkanGameEngine create command buffers
+	void VulkanGameEngine::createCommandBuffers()
+	{
+		commandBuffers.resize(swapChainFramebuffers.size());
+
+		VkCommandBufferAllocateInfo allocInfo = {};
+		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfo.commandPool = commandPool;
+		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocInfo.commandBufferCount = (uint32_t) commandBuffers.size();
+
+		if (vkAllocateCommandBuffers(logicalDevice, &allocInfo, commandBuffers.data()) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to allocate command buffers!");
+		}
+	}
 
 	/// VulkanGameEngine initialization
 	void VulkanGameEngine::init()
