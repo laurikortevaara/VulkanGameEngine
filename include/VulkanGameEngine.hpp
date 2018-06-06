@@ -57,6 +57,9 @@ namespace vge
 		/// mainLoop will be called for each rendering frame by GLFW
 		void mainLoop();
 
+		/// Setup Vulkan debug callback
+		void setupDebugCallback();
+
 		/// checkValidationLayerSupport will return the shiit
 		bool checkValidationLayerSupport();
 
@@ -96,7 +99,25 @@ namespace vge
 		/// Creates the swap chain image views
 		void createSwapChainImageViews();
 
+		/// Creates the render pass
+		void createRenderPass();
+
+		/// Creates the graphics pipeline
+		void createGraphicsPipeline();
+
+		/// Creates a shader module
+		VkShaderModule createShaderModule(const std::vector<char>& code);
+
+		/// Finds the queue families
 		QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+
+		/// Creates the Frame buffers
+		void createFramebuffers();
+
+		/// Create command pool
+		void createCommandPool();
+
+		static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objType, uint64_t obj, size_t location, int32_t code, const char* layerPrefix, const char* msg, void* userData);
 	private:
 		const std::vector<const char*> deviceExtensions = {
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME
@@ -107,7 +128,8 @@ namespace vge
 
 		GLFWwindow*			window;
 		VkInstance			instance;
-		
+		VkDebugReportCallbackEXT callback;
+
 		/// The devices (physical & logical)
 		VkPhysicalDevice	physicalDevice;
 		VkDevice			logicalDevice;
@@ -122,12 +144,24 @@ namespace vge
 		/// The swap chain
 		VkSwapchainKHR		 swapChain;
 		std::vector<VkImage> swapChainImages;
+		std::vector<VkFramebuffer> swapChainFramebuffers;
 		VkFormat			 swapChainImageFormat;
 		VkExtent2D			 swapChainExtent;
 
 		/// The Image views
 		std::vector<VkImageView> swapChainImageViews;
 
+		/// Render Pass
+		VkRenderPass		renderPass;
+		VkPipelineLayout	pipelineLayout;
+
+		///	Graphics pipeline
+		VkPipeline			graphicsPipeline;
+
+		/// Command pool
+		VkCommandPool		commandPool;
 	};
+
+	
 
 } /// ~ namespace vge
