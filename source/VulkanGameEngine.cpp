@@ -437,6 +437,7 @@ namespace vge
 			throw std::runtime_error("Failed to create a Vulkan logical device!");
 		}
 
+		vkGetDeviceQueue(logicalDevice, indices.graphicsFamily, 0, &graphicsQueue);
 		vkGetDeviceQueue(logicalDevice, indices.presentFamily, 0, &presentQueue);
 	}
 
@@ -453,6 +454,7 @@ namespace vge
 		createSwapChainImageViews();
 		createRenderPass();
 		createGraphicsPipeline();
+		createFramebuffers();
 		createCommandPool();
 		createCommandBuffers();
 		createSemaphores();
@@ -662,10 +664,24 @@ namespace vge
 		renderPassInfo.subpassCount = 1;
 		renderPassInfo.pSubpasses = &subpass;
 
+		// Create a subpass dependecy for transition at the end of render pass
+		VkSubpassDependency dependency = {};
+		dependency.srcSubpass = VK_SUBPASS_EXTERNAL; // Refers to implicit subpass befre/after the 
+		dependency.dstSubpass = 0;
+
+		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.srcAccessMask = 0;
+
+		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.dstStageMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+		renderPassInfo.subpassCount = 1;
+		renderPassInfo.pDependencies = &dependency;
+
 		if (vkCreateRenderPass(logicalDevice, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create render pass!");
-		}
+		}		
 	}
 
 	/// Creates the graphics pipeline
@@ -942,7 +958,50 @@ namespace vge
 	/// VulkanGameEngine draw frame
 	void VulkanGameEngine::drawFrame()
 	{
+		// Acquire image from the swap chain
+		// max uint64_t disables the timeout
+		uint32_t imageIndex;
+		vkAcquireNextImageKHR(logicalDevice, swapChain, std::numeric_limits<uint64_t>::max() /*timeout*/, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+
+		VkSubmitInfo submitInfo = {};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+		// Define the wait stages
+		VkSemaphore semaphores[] = { imageAvailableSemaphore };
+		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+
+		submitInfo.waitSemaphoreCount = 1;
+		submitInfo.pWaitSemaphores = semaphores;
+		submitInfo.pWaitDstStageMask = waitStages;
+
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
 		
+		// Define the signal states
+		VkSemaphore signalSemaphores[] = { renderFinishedSemaphore };
+		submitInfo.signalSemaphoreCount = 1;
+		submitInfo.pSignalSemaphores = signalSemaphores;
+		
+		// Now submit the command buffer to the graphics queue
+		if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to submit command buffer to graphics queue!");
+		}
+
+		VkPresentInfoKHR presentInfo = {};
+		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+		presentInfo.waitSemaphoreCount = 1;
+		presentInfo.pWaitSemaphores = signalSemaphores;
+
+		VkSwapchainKHR swapChains[] = { swapChain };
+		presentInfo.swapchainCount = 1;
+		presentInfo.pSwapchains = swapChains;
+		presentInfo.pImageIndices = &imageIndex;
+		presentInfo.pResults = nullptr; // Optional;
+
+		// Send the request for the swap chain to present an image
+		vkQueuePresentKHR(presentQueue, &presentInfo);
 	}
 
 	/// VulkanGameEngine create semaphores
@@ -980,6 +1039,9 @@ namespace vge
 			glfwPollEvents();
 			drawFrame();
 		}
+
+		// Wait for the device to become idle, i.e. all rendering has been completed
+		vkDeviceWaitIdle(logicalDevice);
 	}
 
 	/// VulkanGameEngine cleaning up code
