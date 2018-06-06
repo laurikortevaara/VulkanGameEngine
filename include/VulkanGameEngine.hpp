@@ -114,11 +114,17 @@ namespace vge
 		/// Creates the Frame buffers
 		void createFramebuffers();
 
-		/// Create command pool
+		/// Creates command pool
 		void createCommandPool();
 
-		/// Create command buffers
+		/// Creates command buffers
 		void createCommandBuffers();
+
+		/// Draws a frame
+		void drawFrame();
+
+		/// Creates synchronization semaphores
+		void createSemaphores();
 
 		static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objType, uint64_t obj, size_t location, int32_t code, const char* layerPrefix, const char* msg, void* userData);
 	private:
@@ -166,6 +172,10 @@ namespace vge
 
 		/// Command buffers
 		std::vector<VkCommandBuffer>	commandBuffers;
+
+		/// Synchronization semaphores
+		VkSemaphore			imageAvailableSemaphore;
+		VkSemaphore			renderFinishedSemaphore;
 	};
 
 	

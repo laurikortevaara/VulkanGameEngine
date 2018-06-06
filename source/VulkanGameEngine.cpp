@@ -83,7 +83,11 @@ namespace vge
 		swapChainImageViews(0),
 		renderPass(VK_NULL_HANDLE),
 		pipelineLayout(VK_NULL_HANDLE),
-		graphicsPipeline(VK_NULL_HANDLE)
+		graphicsPipeline(VK_NULL_HANDLE),
+		commandPool(VK_NULL_HANDLE),
+		commandBuffers(0),
+		imageAvailableSemaphore(VK_NULL_HANDLE),
+		renderFinishedSemaphore(VK_NULL_HANDLE)
 	{
 		std::cout << "Vulkan Game Engine instance created" << std::endl;
 		int res = glfwInit();
@@ -451,6 +455,7 @@ namespace vge
 		createGraphicsPipeline();
 		createCommandPool();
 		createCommandBuffers();
+		createSemaphores();
 	}
 
 	/// Creates the swap chain image views
@@ -931,9 +936,26 @@ namespace vge
 			{
 				throw std::runtime_error("Failed to record command buffer!");
 			}
-		}
+		}		
+	}
 
+	/// VulkanGameEngine draw frame
+	void VulkanGameEngine::drawFrame()
+	{
 		
+	}
+
+	/// VulkanGameEngine create semaphores
+	void VulkanGameEngine::createSemaphores()
+	{
+		VkSemaphoreCreateInfo createInfo = {};
+		createInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+		
+		if (vkCreateSemaphore(logicalDevice, &createInfo, nullptr, &imageAvailableSemaphore) != VK_SUCCESS ||
+			vkCreateSemaphore(logicalDevice, &createInfo, nullptr, &renderFinishedSemaphore) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to create semaphores!");
+		}
 	}
 
 	/// VulkanGameEngine initialization
@@ -956,12 +978,17 @@ namespace vge
 	{
 		while (!glfwWindowShouldClose(window)) {
 			glfwPollEvents();
+			drawFrame();
 		}
 	}
 
 	/// VulkanGameEngine cleaning up code
 	void VulkanGameEngine::cleanup()
 	{
+		// Destroy synchronization semaphores
+		vkDestroySemaphore(logicalDevice, renderFinishedSemaphore, nullptr);
+		vkDestroySemaphore(logicalDevice, imageAvailableSemaphore, nullptr);		
+
 		// Destroy command pool
 		vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
 
